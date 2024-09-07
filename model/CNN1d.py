@@ -33,4 +33,5 @@ def create_model():
 
     optimizer = SGD(learning_rate=0.001, momentum=0.9)
     model.compile(optimizer=optimizer, loss='mse', metrics=[MeanAbsoluteError()])
+    model.summary()
     return model
