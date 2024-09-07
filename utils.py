@@ -1,3 +1,6 @@
+import numpy as np
+import random
+
 def normalise_wlc(train, valid) :
 
     wlc_train_min = train.min()
