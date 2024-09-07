@@ -63,6 +63,13 @@ def set_output_dir(output_dir='./output'):
     else:
         print(f'Output directory {output_dir} already exists')
     
+def set_normalization_output_dir(output_dir='./normalized_data'):
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        print(f'Created output directory {output_dir}')
+    else:
+        print(f'Output directory {output_dir} already exists')
+    
 def normalize_data():
     train_solution = np.loadtxt(f'{auxiliary_folder}/train_labels.csv', delimiter = ',', skiprows = 1)
     targets = train_solution[:,1:]
@@ -97,6 +104,7 @@ def normalize_data():
 
 if __name__ == '__main__':
     set_output_dir()
+    set_normalization_output_dir()
     train_wc, valid_wc, train_targets_wc_norm, valid_targets_wc_norm, min_train_valid_wc, max_train_valid_wc =normalize_data()
     np.save(f'{normalized_data_folder}/train_wc.npy', train_wc)
     np.save(f'{normalized_data_folder}/valid_wc.npy', valid_wc)
