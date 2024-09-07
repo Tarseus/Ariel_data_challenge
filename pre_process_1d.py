@@ -42,6 +42,7 @@ def pre_process_1d():
     dataset = np.concatenate([signal_AIRS_diff_transposed_binned, FGS_column[:,:, np.newaxis,:]], axis = 2)
     # shape: 673, 187, 283, 32; num_samples, num_time_step, num_wavelength, num_spatial_dim
     dataset = dataset.sum(axis=3)
+    # shape: 673, 187, 283; num_samples, num_time_step, num_wavelength
     dataset_norm = norm_star_spectrum(dataset)
     dataset_norm = np.transpose(dataset_norm,(0,2,1))
     cut_inf, cut_sup = 39, 321 # we have previously cut the data along the wavelengths to remove the edges, this is to match with the targets range in the make data file

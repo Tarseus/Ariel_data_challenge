@@ -36,6 +36,11 @@ def create_dataset_norm(dataset1, dataset2) :
     return dataset_norm1, dataset_norm2
 
 
-def norm_star_spectrum (signal) : 
+def norm_star_spectrum(signal):
+    break_point_csv = np.loadtxt('breakpoints.csv', delimiter = ',', skiprows = 1)
+    print(break_point_csv.head)
+    exit()
+    for i in range(signal.shape[0]):
+        
     img_star = signal[:,:50].mean(axis = 1) + signal[:,-50:].mean(axis = 1)
     return signal/img_star[:,np.newaxis,:]
