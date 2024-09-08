@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+anxiliary_folder = './auxiliary'
 def normalise_wlc(train, valid) :
 
     wlc_train_min = train.min()
@@ -36,6 +37,12 @@ def create_dataset_norm(dataset1, dataset2) :
     return dataset_norm1, dataset_norm2
 
 
-def norm_star_spectrum (signal) : 
-    img_star = signal[:,:50].mean(axis = 1) + signal[:,-50:].mean(axis = 1)
-    return signal/img_star[:,np.newaxis,:]
+def norm_star_spectrum(signal):
+    break_point_csv = np.loadtxt(f'{anxiliary_folder}/breakpoints.csv', delimiter=',', skiprows=1, usecols=(-4, -1)).astype(np.int16)
+    for i in range(signal.shape[0]):
+        img_star = signal[i, :, :break_point_csv[i][0]].mean(axis=1) + signal[i, :, break_point_csv[i][1]:].mean(axis=1)
+        signal[i] = signal[i] / img_star[:, np.newaxis]
+    
+    return signal
+    # img_star = signal[:,:50].mean(axis = 1) + signal[:,-50:].mean(axis = 1)
+    # return signal/img_star[:,np.newaxis,:]

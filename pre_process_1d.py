@@ -42,11 +42,9 @@ def pre_process_1d():
     dataset = np.concatenate([signal_AIRS_diff_transposed_binned, FGS_column[:,:, np.newaxis,:]], axis = 2)
     # shape: 673, 187, 283, 32; num_samples, num_time_step, num_wavelength, num_spatial_dim
     dataset = dataset.sum(axis=3)
+    # shape: 673, 187, 283; num_samples, num_time_step, num_wavelength
     dataset_norm = norm_star_spectrum(dataset)
     dataset_norm = np.transpose(dataset_norm,(0,2,1))
-    cut_inf, cut_sup = 39, 321 # we have previously cut the data along the wavelengths to remove the edges, this is to match with the targets range in the make data file
-    l = cut_sup - cut_inf + 1 
-    wls = np.arange(l)
     N_train = 8*N//10
     train_obs, valid_obs, list_index_train = split(dataset_norm, N_train)
     train_targets, valid_targets = targets[list_index_train], targets[~list_index_train]
@@ -62,6 +60,14 @@ def pre_process_1d():
 
     # Normalize the targets 
     train_targets_wc_norm, valid_targets_wc_norm, min_train_valid_wc, max_train_valid_wc = normalize(train_targets_wc, valid_targets_wc)
+    
+    plt.figure()
+    for i in range (200) : 
+        plt.plot(train_wc[-i], '-', alpha = 0.5)
+    plt.title('Light-curves from the train set') 
+    plt.xlabel('Time')
+    plt.ylabel('Normalized flux')
+    plt.show()
     return train_wc, valid_wc, train_targets_wc_norm, valid_targets_wc_norm, min_train_valid_wc, max_train_valid_wc
 
 if __name__ == '__main__':
