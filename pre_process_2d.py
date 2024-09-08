@@ -8,7 +8,7 @@ from matplotlib.ticker import ScalarFormatter
 import pandas as pd
 from utils import *
 
-data_folder = './data'
+data_folder = './data/w_lin_corr'
 auxiliary_folder = './auxiliary'
 normalized_data_folder = './pre_processed_2d'
 data_train = np.load(f'{data_folder}/data_train.npy')
@@ -66,6 +66,7 @@ def pre_process_2d():
     targets_mean = targets[:,1:].mean(axis = 1) # used for the 1D-CNN to extract the mean value, only AIRS wavelengths as the FGS point is not used in the white curve
     N = targets.shape[0]
     N_train = 8*N//10
+    # N_train = N
     # # Validation and train data split
     cut_inf, cut_sup = 39, 321 # we have previously cut the data along the wavelengths to remove the edges, this is to match with the targets range in the make data file
     l = cut_sup - cut_inf + 1 
@@ -94,14 +95,27 @@ def pre_process_2d():
     
     train_obs = train_obs.transpose(0,2,1)
     valid_obs = valid_obs.transpose(0,2,1)
-    # print(train_obs.shape)
+    print('train_targets:', train_targets.shape)
+    print('train_targets_shift:', train_targets_shift.shape)
+    print('train_targets_norm:', train_targets_norm.shape)
+    print('train_obs:', train_obs.shape)
+    # exit()
     train_obs_in = suppress_out_transit(train_obs)
     valid_obs_in = suppress_out_transit(valid_obs)
+    print('train_obs_in:', train_obs_in.shape)
     train_obs_2d_mean = substract_data_mean(train_obs_in)
+    print('train_obs_2d_mean:', train_obs_2d_mean.shape)
+    print('train_obs_2d.mean:', train_obs_2d_mean.mean())
     valid_obs_2d_mean = substract_data_mean(valid_obs_in)
     
     train_obs_norm, valid_obs_norm, data_abs_max = data_norm(train_obs_2d_mean, valid_obs_2d_mean)
-    
+    train_obs_norm_mean = train_obs_norm.mean()
+    train_obs_norm_max = train_obs_norm.max()
+    train_obs_norm_min = train_obs_norm.min()
+
+    print('train_obs_norm mean:', train_obs_norm_mean)
+    print('train_obs_norm max:', train_obs_norm_max)
+    print('train_obs_norm min:', train_obs_norm_min)
     plt.figure(figsize=(15,5))
     for i in range (train_obs.shape[0]) :
         plt.plot(wls, train_obs_norm[i,10], 'g-', alpha = 0.5)

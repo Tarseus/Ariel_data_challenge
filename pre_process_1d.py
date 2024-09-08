@@ -11,7 +11,7 @@ import imageio
 import shutil
 from tqdm import tqdm
 
-data_folder = './data'
+data_folder = './data/wo_lin_corr'
 auxiliary_folder = './auxiliary'
 normalized_data_folder = './pre_processed_1d'
 data_train = np.load(f'{data_folder}/data_train.npy')
