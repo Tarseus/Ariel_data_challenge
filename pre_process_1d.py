@@ -11,12 +11,14 @@ import imageio
 import shutil
 from tqdm import tqdm
 
-data_folder = './data/wo_lin_corr'
+data_folder = './data/w_lin_corr'
 auxiliary_folder = './auxiliary'
 normalized_data_folder = './pre_processed_1d'
 data_train = np.load(f'{data_folder}/data_train.npy')
 data_train_FGS = np.load(f'{data_folder}/data_train_FGS.npy')
 DENOISE = True
+capture_frames = -1
+denoise_type = '1st' # ['1st', '2nd', '4th', ...]
 
 def set_output_dir(output_dir='./output'):
     if not os.path.exists(output_dir):
@@ -32,11 +34,17 @@ def set_normalization_output_dir(output_dir='./normalized_data'):
     else:
         print(f'Output directory {output_dir} already exists')
     
-def denoise(train, valid):
+def denoise1(train, valid):
     percentile_1 = np.percentile(train, 1, axis=1)
     mean = np.median(percentile_1, axis=0)
     train = train / (1 - mean[np.newaxis, np.newaxis, :])
     valid = valid / (1 - mean[np.newaxis, np.newaxis, :])
+    return train, valid
+
+def denoise2(train, valid):
+    scale = 1000
+    train = (train - 1) * scale
+    valid = (valid - 1) * scale
     return train, valid
 
 def save_video(dataset, train_wc, tmp_dir='./tmp', denoise_signal=None):
@@ -44,11 +52,13 @@ def save_video(dataset, train_wc, tmp_dir='./tmp', denoise_signal=None):
     os.makedirs(tmp_dir, exist_ok=True)
     plt.figure()
     file_names = []
-    for i in tqdm(range(train_wc.shape[0])):
-    # for i in tqdm(range(30)):
+    if capture_frames == -1:
+        num_frame = dataset.shape[0]
+    else:
+        num_frame = capture_frames
+    # for i in tqdm(range(train_wc.shape[0])):
+    for i in tqdm(range(num_frame)):
         data, norm_data, bound = dataset[i], train_wc[i], bounds[i]
-        # data = (data - np.min(data)) / (np.max(data) - np.min(data))
-        # data1 = data / np.max(data)
         fig, ax1 = plt.subplots(1, 1, figsize=(9, 6))
         ax2 = ax1.twinx()
         ax1.plot(data, color='#4E79A7', alpha=0.7, label="Data")
@@ -93,6 +103,7 @@ def pre_process_1d():
     dataset = dataset.sum(axis=3)
     # shape: 673, 187, 283; num_samples, num_time_step, num_wavelength
     dataset_norm = norm_star_spectrum(dataset)
+    # dataset_norm = dataset
     dataset_norm = np.transpose(dataset_norm,(0,2,1))
     # N_train = 8*N//10
     N_train = N
@@ -107,24 +118,32 @@ def pre_process_1d():
     # white_curve = train_obs_denoise.sum(axis=2) / wc_mean[:, np.newaxis]
     
     signal_AIRS_diff_transposed_binned = signal_AIRS_diff_transposed_binned.sum(axis=3)
+    # signal_AIRS_diff_transposed_binned , _ = normalise_wlc(signal_AIRS_diff_transposed_binned,
+    #                                                        signal_AIRS_diff_transposed_binned)
     signal_AIRS_diff_transposed_binned = norm_star_spectrum(signal_AIRS_diff_transposed_binned)
     # signal_norm = np.transpose(signal_norm, (0, 2, 1))
     # signal_denoise, _ = denoise(signal_norm, signal_norm)
-    signal_AIRS_diff_transposed_binned , _ = normalise_wlc(signal_AIRS_diff_transposed_binned,
-                                                           signal_AIRS_diff_transposed_binned)
+    
     wc_mean = signal_AIRS_diff_transposed_binned.mean(axis=1).mean(axis=1)
     white_curve = signal_AIRS_diff_transposed_binned.sum(axis=2) / wc_mean[:, np.newaxis]
     train_wc, valid_wc = white_curve[list_index_train], white_curve[~list_index_train]
     train_targets_wc, valid_targets_wc = targets_mean[list_index_train], targets_mean[~list_index_train]
     train_wc, valid_wc = normalise_wlc(train_wc, valid_wc)
+    # train_wc = norm_star_spectrum(train_wc)
     train_targets_wc_norm, valid_targets_wc_norm, min_train_valid_wc, max_train_valid_wc = normalize(train_targets_wc, valid_targets_wc)
     if DENOISE:
         signal_AIRS_diff_transposed_binned_denoised = data_train.sum(axis=3)
+        # signal_AIRS_diff_transposed_binned_denoised, _ = normalise_wlc(signal_AIRS_diff_transposed_binned_denoised,
+        #                                                                signal_AIRS_diff_transposed_binned_denoised)
         signal_AIRS_diff_transposed_binned_denoised = norm_star_spectrum(signal_AIRS_diff_transposed_binned_denoised)
-        signal_AIRS_diff_transposed_binned_denoised, _ = normalise_wlc(signal_AIRS_diff_transposed_binned_denoised,
-                                                                       signal_AIRS_diff_transposed_binned_denoised)
-        signal_AIRS_diff_transposed_binned_denoised, _ = denoise(signal_AIRS_diff_transposed_binned_denoised, 
-                                                        signal_AIRS_diff_transposed_binned_denoised)
+        
+        if denoise_type == '1st':
+            signal_AIRS_diff_transposed_binned_denoised, _ = denoise1(signal_AIRS_diff_transposed_binned_denoised,
+                                                                      signal_AIRS_diff_transposed_binned_denoised)
+        elif denoise_type == '2nd':
+            signal_AIRS_diff_transposed_binned_denoised, _ = denoise2(signal_AIRS_diff_transposed_binned_denoised,
+                                                                      signal_AIRS_diff_transposed_binned_denoised)
+        
         wc_mean_denoised = signal_AIRS_diff_transposed_binned_denoised.mean(axis=1).mean(axis=1)
         white_curve_denoised = signal_AIRS_diff_transposed_binned_denoised.sum(axis=2)/ wc_mean_denoised[:, np.newaxis]
         # Split the light curves and targets 
@@ -133,6 +152,7 @@ def pre_process_1d():
 
         # Normalize the wlc
         train_wc_denoised, valid_wc_denoised = normalise_wlc(train_wc_denoised, valid_wc_denoised)
+        # train_wc_denoised = norm_star_spectrum(train_wc_denoised)
 
         # Normalize the targets 
         # train_targets_wc_norm, valid_targets_wc_norm, min_train_valid_wc, max_train_valid_wc = normalize(train_targets_wc, valid_targets_wc)

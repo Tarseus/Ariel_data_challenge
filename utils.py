@@ -41,7 +41,8 @@ def norm_star_spectrum(signal):
     break_point_csv = np.loadtxt(f'{anxiliary_folder}/breakpoints.csv', delimiter=',', skiprows=1, usecols=(-4, -1)).astype(np.int16)
     for i in range(signal.shape[0]):
         break_point = min(break_point_csv[i][0], 187 - break_point_csv[i][1])
-        img_star = signal[i, :break_point].mean(axis=0) + signal[i, -break_point:].mean(axis=0)
+        out_of_transit = np.concatenate([signal[i, :break_point], signal[i, -break_point:]], axis=0)
+        img_star = out_of_transit.mean(axis=0)
         signal[i] = signal[i] / img_star[np.newaxis, :]
     
     return signal
