@@ -101,4 +101,4 @@ def find_derivative(data, IDX, train_labels, verbose=False, plot=False):
         plt.savefig(f'tmp/breakpoint_{IDX}.png')
         plt.close()
     
-    return lower_bounds[0], upper_bounds[0], lower_bounds[1], upper_bounds[1]
+    return upper_bounds[0], lower_bounds[0], lower_bounds[1], upper_bounds[1]

@@ -6,7 +6,7 @@ import shutil
 
 auxiliary_folder = './auxiliary'
 data_folder = './data'
-if_plot = False
+if_plot = True
 export_csv = True
 
 if __name__ == "__main__":
@@ -39,10 +39,10 @@ if __name__ == "__main__":
         'bound4': [bounds[3]],
         })
         results = pd.concat([results, new_row], ignore_index=True)
-    results.to_csv('breakpoints.csv', index=False)
+    results.to_csv('auxiliary/breakpoints.csv', index=False)
     
     if len(file_names) > 0:
-        with imageio.get_writer('breakpoints.mp4', mode='I', fps=1.5) as writer:
+        with imageio.get_writer('breakpoints.mp4', mode='I', fps=2.5) as writer:
             for filename in file_names:
                 image = imageio.imread(filename)
                 writer.append_data(image)
