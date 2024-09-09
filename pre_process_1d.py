@@ -33,14 +33,7 @@ def set_normalization_output_dir(output_dir='./normalized_data'):
         print(f'Created output directory {output_dir}')
     else:
         print(f'Output directory {output_dir} already exists')
-    
-def denoise1(train, valid):
-    percentile_1 = np.percentile(train, 1, axis=1)
-    mean = np.median(percentile_1, axis=0)
-    train = train / (1 - mean[np.newaxis, np.newaxis, :])
-    valid = valid / (1 - mean[np.newaxis, np.newaxis, :])
-    return train, valid
-
+ 
 def denoise2(train, valid):
     scale = 1000
     train = (train - 1) * scale

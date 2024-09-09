@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from scipy.signal import savgol_filter
 
 anxiliary_folder = './auxiliary'
 def normalise_wlc(train, valid) :
@@ -39,9 +40,12 @@ def create_dataset_norm(dataset1, dataset2) :
 
 def norm_star_spectrum(signal):
     break_point_csv = np.loadtxt(f'{anxiliary_folder}/breakpoints.csv', delimiter=',', skiprows=1, usecols=(-4, -1)).astype(np.int16)
+    
     for i in range(signal.shape[0]):
-        break_point = min(break_point_csv[i][0], 187 - break_point_csv[i][1])
-        out_of_transit = np.concatenate([signal[i, :break_point], signal[i, -break_point:]], axis=0)
+        # break_point = min(break_point_csv[i][0], 187 - break_point_csv[i][1])
+        break_point_left = break_point_csv[i, 0]
+        break_point_right = break_point_csv[i, 1]
+        out_of_transit = np.concatenate([signal[i, :break_point_left], signal[i, break_point_right:]], axis=0)
         img_star = out_of_transit.mean(axis=0)
         signal[i] = signal[i] / img_star[np.newaxis, :]
     
@@ -50,3 +54,13 @@ def norm_star_spectrum(signal):
     # print(img_star.shape)
     # # return signal/img_star[:,np.newaxis,:]
     # exit()
+    
+def denoise1(train, valid):
+    # shape: (673, 187, 282)
+    train = savgol_filter(train, 5, 3, axis=1)
+    valid = savgol_filter(valid, 5, 3, axis=1)
+    percentile_1 = np.percentile(train, 1, axis=1)
+    mean = np.median(percentile_1, axis=0)
+    train = train / (1 - mean[np.newaxis, np.newaxis, :])
+    valid = valid / (1 - mean[np.newaxis, np.newaxis, :])
+    return train, valid

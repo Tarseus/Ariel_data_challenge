@@ -3,9 +3,10 @@ from algo.breakpoint2 import *
 import pandas as pd
 import imageio
 import shutil
+from tqdm import tqdm
 
 auxiliary_folder = './auxiliary'
-data_folder = './data'
+data_folder = './data/w_lin_corr'
 if_plot = True
 export_csv = True
 
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     file_names = []
     
     results = pd.DataFrame(columns=['planet_id', 'bound1', 'bound2', 'bound3', 'bound4'])
-    for IDX in range(len(dataset)):
+    for IDX in tqdm(range(len(dataset))):
     # for IDX in range(630, 640):
         data = dataset[IDX]
         bounds = find_derivative(data, IDX, train_labels, verbose=True, plot=if_plot)

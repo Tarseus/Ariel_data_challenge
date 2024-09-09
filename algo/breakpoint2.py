@@ -56,7 +56,7 @@ def get_peaks(gradient_2, inner_shift:int, outter_shift:int)->dict[tuple[int,int
             'outter_peaks': (out_of_transition_peaks[0]-outter_shift, out_of_transition_peaks[1]+outter_shift)}
 
 def find_derivative(data, IDX, train_labels, verbose=False, plot=False):
-    data /= np.max(data)
+    data /= np.max(data)# shape: (187, )
     smoothed_data = savgol_filter(data, 11, 3)
     gradient=np.gradient(smoothed_data)
     gradient/=gradient.max()

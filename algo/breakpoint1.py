@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 
 def smooth_data(data, window_size):
-    return savgol_filter(data, window_size, 2)  # window size 51, polynomial order 3
+    return savgol_filter(data, window_size, 3)  # window size 51, polynomial order 3
 
 
 def optimize_breakpoint(data, initial_breakpoint, window_size=500, buffer_size=50, smooth_window=121):

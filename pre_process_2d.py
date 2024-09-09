@@ -99,6 +99,7 @@ def pre_process_2d():
     print('train_targets_shift:', train_targets_shift.shape)
     print('train_targets_norm:', train_targets_norm.shape)
     print('train_obs:', train_obs.shape)
+    train_obs, valid_obs = denoise1(train_obs, valid_obs)
     # exit()
     train_obs_in = suppress_out_transit(train_obs)
     valid_obs_in = suppress_out_transit(valid_obs)
