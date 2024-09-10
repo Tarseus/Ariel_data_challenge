@@ -59,8 +59,8 @@ def denoise1(train, valid):
     # shape: (673, 187, 282)
     train = savgol_filter(train, 5, 3, axis=1)
     valid = savgol_filter(valid, 5, 3, axis=1)
-    percentile_1 = np.percentile(train, 1, axis=1)
-    mean = np.median(percentile_1, axis=0)
-    train = train / (1 - mean[np.newaxis, np.newaxis, :])
-    valid = valid / (1 - mean[np.newaxis, np.newaxis, :])
+    # percentile_1 = np.percentile(train, 1, axis=1)
+    # mean = np.median(percentile_1, axis=0)
+    # train = train / (1 - mean[np.newaxis, np.newaxis, :])
+    # valid = valid / (1 - mean[np.newaxis, np.newaxis, :])
     return train, valid

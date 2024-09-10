@@ -35,8 +35,8 @@ def data_norm(data1, data2):
     data_min = data1.min()
     data_max = data1.max()
     data_abs_max = np.max([data_min, data_max])
-    data1 = data1/data_abs_max
-    data2 = data2/data_abs_max
+    data1 = data1 / data_abs_max
+    data2 = data2 / data_abs_max
     return data1, data2, data_abs_max
 
 def targets_norm_back(data, data_obs_max):
