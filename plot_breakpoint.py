@@ -6,7 +6,7 @@ import shutil
 
 auxiliary_folder = './auxiliary'
 data_folder = './data'
-if_plot = False
+if_plot = True
 export_csv = True
 
 if __name__ == "__main__":
